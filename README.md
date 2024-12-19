@@ -36,6 +36,26 @@ python setup.py install
 cd ..
 ```
 
+Prepare the [checkpoints](https://drive.google.com/drive/folders/1vXUerOenwrbp0clkALKPehKkvq5HWvQK?usp=drive_link):
+
+```
+${POSE_ROOT}
+    `-- lib
+        `-- checkpoints
+            |-- darkpose
+            |   |-- w32_384×288.pth
+            |   `-- w48_384×288.pth
+            |-- hrnet
+            |   |-- pose_hrnet_w32_384x288.pth
+            |   `-- pose_hrnet_w48_384x288.pth
+            |-- resnet
+            |    |-- pose_resnet_50_384x288.pth
+            |    |-- pose_resnet_101_384x288.pth
+            |    `-- pose_resnet_152_384x288.pth
+            `-- yolo3.weights
+```
+
+
 ### Test
 
 Test the left-handed batter:
