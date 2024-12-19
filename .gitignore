@@ -1,0 +1,11 @@
+demo/output/
+lib/checkpoint/
+results
+*.DS_Store
+demo
+.vscode
+*.log
+__pycache__
+results.tar
+results.tar.gz
+

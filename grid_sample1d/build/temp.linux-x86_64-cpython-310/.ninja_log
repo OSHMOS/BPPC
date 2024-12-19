@@ -1,0 +1,3 @@
+# ninja log v5
+0	35401	1694774044	/home/bppe/BPPE-BaseballPlayerPoseEstimation/grid_sample1d/build/temp.linux-x86_64-cpython-310/grid_sample1d_cuda.o	cc4123f5962b4646
+0	99930	1694774109	/home/bppe/BPPE-BaseballPlayerPoseEstimation/grid_sample1d/build/temp.linux-x86_64-cpython-310/grid_sample1d_cuda_kernel.o	f1d95e49b60f93d8
