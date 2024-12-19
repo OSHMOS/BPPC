@@ -1,6 +1,6 @@
 # Accurate Baseball Player Pose Refinement Using Motion Prior Guidance
 
-![The framework of BPPC](BPPC_framework.png)
+![The framework of BPPC](./assets/BPPC_framework.png)
 
 https://drive.google.com/file/d/1YeizctfSZQtzHbl8uBxJkT9PJnZxiOw9/view
 
