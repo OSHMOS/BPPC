@@ -6,14 +6,15 @@ import glob
 import math
 import time
 import torch
+import argparse # for parameter
 import numpy as np
 from tabulate import tabulate
 from lib.bppc.utils_allbaseline import input_img2video, img2video, generate_heatmap
 from lib.backbone.lib.utils.evaluate import accuracy
 from lib.dataset.bppc_dataset import hrnet_to_bppc, gt_to_bppc, scores_to_13, bppc_to_13, hr_to_13
 from lib.preprocess import h36m_coco_format
-from bppc_left import BPPC
-from visualize_bppc_left import Visualize_BPPC
+from bppc import BPPC
+from visualize_bppc import Visualize_BPPC
 from accuracy_bppc import cal_conf_acc, cal_acc, AverageMeter
 
 torch.cuda.empty_cache()
@@ -38,7 +39,12 @@ def clear_gpu_memory(*args):
     torch.cuda.empty_cache()
     gc.collect()
 
+parser = argparse.ArgumentParser(description="BPPC")
+parser.add_argument("--handed", type=str, default="", help="Handed option for batters (left or right)")
+args = parser.parse_args()
+
 if __name__ == '__main__':
+    handed_option = args.handed
     # for cal time
     start = time.time()
 
@@ -47,9 +53,7 @@ if __name__ == '__main__':
     # model_names = ['hw32'] # for rebuttal
     # model_names = ['darkw48'] # for rebuttal
 
-    # # left
-    input_folder = 'data/images/left_final/'
-    # # left before for reproduce              
+    input_folder = f'data/images/{handed_option}_final/'
     
     for model_name in model_names:
         # for conf score resuts
@@ -178,13 +182,13 @@ if __name__ == '__main__':
             # continue
 
             print('\nRefining 2D pose...')
-            bppc = BPPC(pred=hrnet_pred, c_scores=scores)
+            bppc = BPPC(handed_option=handed_option, pred=hrnet_pred, c_scores=scores)
             bppc.optimize(1000) # optimize time, projection, sm
             bppc.optimize_kp(1000) # optimize kpts
             print('Refining 2D pose successfully!')
 
             ####
-            gt_kpts = np.load(f'data/gt_2D/left/{folder_number}_gt.npz')["keypoints"]
+            gt_kpts = np.load(f'data/gt_2D/{handed_option}/{folder_number}_gt.npz')["keypoints"]
             
             gt_kpts = gt_kpts.reshape(1, gt_kpts.shape[0], 13, 2)
             gt_kpts = gt_to_bppc(image_shape, gt_kpts)
@@ -205,7 +209,7 @@ if __name__ == '__main__':
             bppc_heatmap = generate_heatmap(height, width, bppc_kpts).clone().detach().cuda()
 
             # visualize
-            visualizer = Visualize_BPPC(bppc.bppc_kpts, bppc.sm_kpts, gt_kpts, folder_number=folder_number)
+            visualizer = Visualize_BPPC(handed_option, bppc.bppc_kpts, bppc.sm_kpts, gt_kpts, folder_number=folder_number)
             visualizer.visualize(images_list, image_shape, model_name, folder_number)
             
             # img2video(video_path, number, model_name)
@@ -351,7 +355,7 @@ if __name__ == '__main__':
         #     calculate_accuracy(scores_to_13(between_08_09_indices), "0809")
         #     calculate_accuracy(scores_to_13(over_09_indices), "o09")
 
-        #     results_dir = f'demo/output/conf_results/left/{model_name}/{folder_number}/'
+        #     results_dir = f'demo/output/conf_results/{handed_option}/{model_name}/{folder_number}/'
         #     os.makedirs(results_dir, exist_ok=True)
 
         #     # 결과 저장
@@ -404,7 +408,7 @@ if __name__ == '__main__':
         # ]
         # table = tabulate(final_avg_data, headers=['model', 'under 0.5', '0.5 - 0.6', '0.6 - 0.7', '0.7 - 0.8', '0.8 - 0.9', 'over 0.9'])
         
-        # last_results_dir = f'demo/output/conf_results/left/{model_name}'
+        # last_results_dir = f'demo/output/conf_results/{handed_option}/{model_name}'
         # with open(f'{last_results_dir}/last_results.txt', 'w') as f:
         #     f.write(table)
         # print(cnt) # 52
@@ -435,8 +439,8 @@ if __name__ == '__main__':
         table = tabulate(data, headers=['model', 'head', 'shol', 'elb', 'wri', 'hip', 'knee', 'ank', 'avg'])
         print(table)
 
-        os.makedirs(f'demo/output/basic_results/left/{model_name}', exist_ok=True)
-        with open(f'demo/output/basic_results/left/{model_name}/results.txt', 'w') as f:
+        os.makedirs(f'demo/output/basic_result/{handed_option}/{model_name}', exist_ok=True)
+        with open(f'demo/output/basic_results/{handed_option}/{model_name}/results.txt', 'w') as f:
             f.write(table)
         
         print('save the results complete')

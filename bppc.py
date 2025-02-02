@@ -3,6 +3,14 @@ import numpy as np
 import torch.nn as nn
 from grid_sample1d.op import GridSample1d
 
+############# 17 keypoints #######
+# 0 - pelvis
+# 1 - rhip, 2 - rknee, 3 - rankle
+# 4 - lhip, 5 - lknee, 6 - lankle,
+# 7 - belly, 8 - neck, 9 - upper neck, 10 - head,
+# 11 - lshol, 12 - lelbow, 13 - lwrist,
+# 14 - rshol, 15 - relbow, 16 - rwrist
+
 torch.cuda.empty_cache()
 
 def ohkm(loss, topk): # loss.size() = tensor(1, 77, 17)(b=1, f, k)
@@ -30,66 +38,26 @@ sm_3d = sm_3d.astype('float32')
 sm_3d = torch.tensor(sm_3d).unsqueeze(0).cuda()
 # sm_3d = torch.tensor(sm_3d).cuda() # bppc 1, 2
 
-##### left/right swing switch #####
-#### {neck, body, head, left, right, left, right... from up to down, ~~}
-
-# sm_3d[:,:,:,0] = - sm_3d[:,:,:,0]
-
-# for i in range(3,15,2):
-#   tmp = sm_3d[:,:,i,:].clone()
-#   sm_3d[:,:,i,:] =  sm_3d[:,:,i+1,:].clone()
-#   sm_3d[:,:,i+1,:] =  tmp
-
-# #'''
-# ######## gt error
-# error_label_handling=-7
-# for i in [3,7,11]:
-#   tmp = sm_3d[:,error_label_handling:,i,:].clone()
-#   sm_3d[:,error_label_handling:,i,:] =  sm_3d[:,error_label_handling:,i+1,:].clone()
-#   sm_3d[:,error_label_handling:,i+1,:] =  tmp
-#'''
-
-# 0 - pelvis
-# 1 - rhip, 2 - rknee, 3 - rankle
-# 4 - lhip, 5 - lknee, 6 - lankle,
-# 7 - belly, 8 - neck, 9 - upper neck, 10 - head,
-# 11 - lshol, 12 - lelbow, 13 - lwrist,
-# 14 - rshol, 15 - relbow, 16 - rwrist
-
-############# 17 keypoints #######
-# reverse
-# sm_3d[:,:,:,0] = - sm_3d[:,:,:,0]
-
-# for i in [1, 2, 3]:
-#   tmp = sm_3d[:,:,i,:].clone()
-#   sm_3d[:,:,i,:] =  sm_3d[:,:,i+3,:].clone()
-#   sm_3d[:,:,i+3,:] =  tmp
-
-# for i in [14, 15, 16]:
-#   tmp = sm_3d[:,:,i,:].clone()
-#   sm_3d[:,:,i,:] =  sm_3d[:,:,i-3,:].clone()
-#   sm_3d[:,:,i-3,:] =  tmp
-
-#'''
-######## gt error for arms ######
-# error_label_handling=-7
-# # for i in [11, 12 ,13]:
-# for i in [14, 15 ,16]:
-#   tmp = sm_3d[:,error_label_handling:,i,:].clone()
-#   sm_3d[:,error_label_handling:,i,:] =  sm_3d[:,error_label_handling:,i-3,:].clone()
-#   sm_3d[:,error_label_handling:,i-3,:] =  tmp
-#'''
-
-# sm_3d[:,:,3:6,:], sm_3d[:,:,6:9,:] = sm_3d[:,:,5:8,:], sm_3d[:,:,2:5,:]
-# sm_3d[:,:,9:12,:], sm_3d[:,:,12:15,:] = sm_3d[:,:,12:15,:], sm_3d[:,:,9:12,:]
-
-
 # Add an additional dimension for homogenous coordinates
 sm_3d = torch.cat((sm_3d, torch.ones(sm_3d.shape[0],sm_3d.shape[1],sm_3d.shape[2],1 ).cuda()), dim=3)
 # 1, 16, 17, 4
 class BPPC(nn.Module):
-  def __init__(self, pred, c_scores):
+  def __init__(self, handed_option, pred, c_scores):
     super().__init__()
+    if handed_option == 'right':
+      # reverse
+      sm_3d[:,:,:,0] = - sm_3d[:,:,:,0]
+
+      for i in [1, 2, 3]:
+        tmp = sm_3d[:,:,i,:].clone()
+        sm_3d[:,:,i,:] =  sm_3d[:,:,i+3,:].clone()
+        sm_3d[:,:,i+3,:] =  tmp
+
+      for i in [14, 15, 16]:
+        tmp = sm_3d[:,:,i,:].clone()
+        sm_3d[:,:,i,:] =  sm_3d[:,:,i-3,:].clone()
+        sm_3d[:,:,i-3,:] =  tmp
+
     self.pred = pred.clone().detach()
     self.c_scores = torch.from_numpy(c_scores).cuda() # 1x16x17 = #batch x #frame x #keypoints
     

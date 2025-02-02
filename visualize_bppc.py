@@ -9,8 +9,9 @@ from math import sqrt
 torch.cuda.empty_cache()
 
 class Visualize_BPPC():
-    def __init__(self, bppc_kpts, sm_kpts, gt_kpts, folder_number):
+    def __init__(self, handed_option, bppc_kpts, sm_kpts, gt_kpts, folder_number):
         super().__init__()
+        self.handed_option = handed_option
         self.hrnet_kpts = np.load('data/hrnet_2D/hrnet_2D.npz')
         self.bppc_kpts = bppc_kpts
         self.sm_kpts = sm_kpts
@@ -91,15 +92,10 @@ class Visualize_BPPC():
         return img
 
     def visualize(self, images_list, image_shape, model_name, number):
-        # output_dir1 = f'demo/output/backbone/{model_name}/left/{number}/{model_name}/'
-        # output_dir2 = f'demo/output/backbone/{model_name}/left/{number}/bppc/'
-        # output_dir3 = f'demo/output/backbone/{model_name}/left/{number}/sm/'
-        # output_dir4 = f'demo/output/backbone/{model_name}/left/{number}/gt/'
-
-        output_dir1 = f'demo/output/backbone/{model_name}/right/{number}/{model_name}/'
-        output_dir2 = f'demo/output/backbone/{model_name}/right/{number}/bppc/'
-        output_dir3 = f'demo/output/backbone/{model_name}/right/{number}/sm/'
-        output_dir4 = f'demo/output/backbone/{model_name}/right/{number}/gt/'
+        output_dir1 = f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/{model_name}/'
+        output_dir2 = f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/bppc/'
+        output_dir3 = f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/sm/'
+        output_dir4 = f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/gt/'
     
         if not os.path.exists(output_dir1):
             os.makedirs(output_dir1)
@@ -152,8 +148,7 @@ class Visualize_BPPC():
 
         for i in range(hrnet_kpts.shape[0]):
             try:
-                # img = cv2.imread(f'data/images/left/{self.folder_number}/{images_list[i]}')
-                img = cv2.imread(f'data/images/right_final/{self.folder_number}/{images_list[i]}')
+                img = cv2.imread(f'data/images/{self.handed_option}_final/{self.folder_number}/{images_list[i]}')
                 # img = cv2.imread(f'data/mlb_images/{number}/{images_list[i]}')
                 # print(img)
                 # height, width, channels = img.shape
@@ -165,15 +160,10 @@ class Visualize_BPPC():
                 gt_img = self.show2Dpose_gt(gt_kpts[i], copy.deepcopy(img))
 
                 # print(hrnet_img)
-                # cv2.imwrite(f'demo/output/backbone/{model_name}/left/{number}/{model_name}/{i}.png', hrnet_img)
-                # cv2.imwrite(f'demo/output/backbone/{model_name}/left/{number}/bppc/{i}.png', bppc_img)
-                # cv2.imwrite(f'demo/output/backbone/{model_name}/left/{number}/sm/{i}.png', sm_img)
-                # cv2.imwrite(f'demo/output/backbone/{model_name}/left/{number}/gt/{i}.png', gt_img)
-
-                cv2.imwrite(f'demo/output/backbone/{model_name}/right/{number}/{model_name}/{i}.png', hrnet_img)
-                cv2.imwrite(f'demo/output/backbone/{model_name}/right/{number}/bppc/{i}.png', bppc_img)
-                cv2.imwrite(f'demo/output/backbone/{model_name}/right/{number}/sm/{i}.png', sm_img)
-                cv2.imwrite(f'demo/output/backbone/{model_name}/right/{number}/gt/{i}.png', gt_img)
+                cv2.imwrite(f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/{model_name}/{i}.png', hrnet_img)
+                cv2.imwrite(f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/bppc/{i}.png', bppc_img)
+                cv2.imwrite(f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/sm/{i}.png', sm_img)
+                cv2.imwrite(f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/gt/{i}.png', gt_img)
                                 
                 # mlb
                 # gt_img = self.show2Dpose(gt_kpts[i], copy.deepcopy(img))
