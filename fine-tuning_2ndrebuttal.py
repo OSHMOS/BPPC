@@ -69,7 +69,7 @@ if __name__ == '__main__':
     lambda_vel = args.lambda_vel
     lambda_accel = args.lambda_accel
 
-    model_names = ['res50', 'res101', 'res152', 'hw32', 'hw48', 'darkw32', 'darkw48']
+    model_names = ['hw32'] # for 2nd rebuttal
 
     input_folder = f'data/images/{handed_option}_final/'
     
@@ -160,7 +160,7 @@ if __name__ == '__main__':
                 "0809": [],
                 "o09": [],
             }
-
+            
             cnt += 1
 
             print(f"{model_name} ing")
@@ -336,27 +336,28 @@ if __name__ == '__main__':
 
             # break
         
-        # 최종 평균 계산 및 저장
-        final_avg_conf = [
-            [model_name, sum_avg_u05_h/cnt, sum_avg_0506_h/cnt, sum_avg_0607_h/cnt, sum_avg_0708_h/cnt, sum_avg_0809_h/cnt, sum_avg_o09_h/cnt],
-            [model_name+' + bppc', sum_avg_u05_a/cnt, sum_avg_0506_a/cnt, sum_avg_0607_a/cnt, sum_avg_0708_a/cnt, sum_avg_0809_a/cnt, sum_avg_o09_a/cnt]
+    # 최종 평균 계산 및 저장
+    final_avg_conf = [
+        [model_name, sum_avg_u05_h/cnt, sum_avg_0506_h/cnt, sum_avg_0607_h/cnt, sum_avg_0708_h/cnt, sum_avg_0809_h/cnt, sum_avg_o09_h/cnt],
+        [model_name+' + bppc', sum_avg_u05_a/cnt, sum_avg_0506_a/cnt, sum_avg_0607_a/cnt, sum_avg_0708_a/cnt, sum_avg_0809_a/cnt, sum_avg_o09_a/cnt]
+    ]
+    table = tabulate(final_avg_conf, headers=['model', 'under 0.5', '0.5 - 0.6', '0.6 - 0.7', '0.7 - 0.8', '0.8 - 0.9', 'over 0.9'])
+    print(table)
+    
+    os.makedirs(f'demo/output/conf_results/{model_name}/{handed_option}', exist_ok=True)
+    with open(f'demo/output/conf_results/{model_name}/{handed_option}/{lambda_ohkm}_{lambda_reg}_{lambda_vel}_{lambda_accel}_results.txt', 'w') as f:
+        f.write(table)
+
+    final_avg_body = [
+        [model_name, sum_avg_h_head/cnt, sum_avg_h_sho/cnt, sum_avg_h_elb/cnt, sum_avg_h_wri/cnt, sum_avg_h_hip/cnt, sum_avg_h_knee/cnt, sum_avg_h_ank/cnt, sum_avg_h/cnt],
+        [model_name+'+bppc', sum_avg_a_head/cnt, sum_avg_a_sho/cnt, sum_avg_a_elb/cnt, sum_avg_a_wri/cnt, sum_avg_a_hip/cnt, sum_avg_a_knee/cnt, sum_avg_a_ank/cnt, sum_avg_a/cnt],
         ]
-        table = tabulate(final_avg_conf, headers=['model', 'under 0.5', '0.5 - 0.6', '0.6 - 0.7', '0.7 - 0.8', '0.8 - 0.9', 'over 0.9'])
-        
-        os.makedirs(f'demo/output/conf_results/{model_name}/{handed_option}', exist_ok=True)
-        with open(f'demo/output/conf_results/{model_name}/{handed_option}/{lambda_ohkm}_{lambda_reg}_{lambda_vel}_{lambda_accel}_results.txt', 'w') as f:
-            f.write(table)
+    
+    table = tabulate(final_avg_body, headers=['model', 'head', 'sho', 'elb', 'wri', 'hip', 'knee', 'ank', 'avg'])
+    print(table)
 
-        final_avg_body = [
-            [model_name, sum_avg_h_head/cnt, sum_avg_h_sho/cnt, sum_avg_h_elb/cnt, sum_avg_h_wri/cnt, sum_avg_h_hip/cnt, sum_avg_h_knee/cnt, sum_avg_h_ank/cnt, sum_avg_h/cnt],
-            [model_name+'+bppc', sum_avg_a_head/cnt, sum_avg_a_sho/cnt, sum_avg_a_elb/cnt, sum_avg_a_wri/cnt, sum_avg_a_hip/cnt, sum_avg_a_knee/cnt, sum_avg_a_ank/cnt, sum_avg_a/cnt],
-            ]
-        
-        table = tabulate(final_avg_body, headers=['model', 'head', 'sho', 'elb', 'wri', 'hip', 'knee', 'ank', 'avg'])
-        print(table)
-
-        os.makedirs(f'demo/output/basic_results/{model_name}/{handed_option}', exist_ok=True)
-        with open(f'demo/output/basic_results/{model_name}/{handed_option}/{lambda_ohkm}_{lambda_reg}_{lambda_vel}_{lambda_accel}_results.txt', 'w') as f:
-            f.write(table)
-        
-        print('save the results complete')
+    os.makedirs(f'demo/output/basic_results/{model_name}/{handed_option}', exist_ok=True)
+    with open(f'demo/output/basic_results/{model_name}/{handed_option}/{lambda_ohkm}_{lambda_reg}_{lambda_vel}_{lambda_accel}_results.txt', 'w') as f:
+        f.write(table)
+    
+    print('save the results complete')

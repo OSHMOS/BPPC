@@ -42,7 +42,7 @@ sm_3d = torch.tensor(sm_3d).unsqueeze(0).cuda()
 sm_3d = torch.cat((sm_3d, torch.ones(sm_3d.shape[0],sm_3d.shape[1],sm_3d.shape[2],1 ).cuda()), dim=3)
 # 1, 16, 17, 4
 class BPPC(nn.Module):
-  def __init__(self, handed_option, pred, c_scores):
+  def __init__(self, handed_option, lambda_ohkm, lambda_reg, lambda_vel, lambda_accel, pred, c_scores):
     super().__init__()
     if handed_option == 'right':
       # reverse
@@ -60,6 +60,11 @@ class BPPC(nn.Module):
 
     self.pred = pred.clone().detach()
     self.c_scores = torch.from_numpy(c_scores).cuda() # 1x16x17 = #batch x #frame x #keypoints
+
+    self.lambda_ohkm = lambda_ohkm
+    self.lambda_reg = lambda_reg
+    self.lambda_vel = lambda_vel
+    self.lambda_accel = lambda_accel
     
     # Learnable keypoints
     self.params_kp = nn.Parameter(pred.clone().detach())
@@ -84,7 +89,7 @@ class BPPC(nn.Module):
     # Loss function
     self.criterion_mse = torch.nn.MSELoss(reduction='mean')
     
-    # Optimizers (adamw -> weight_decay=0)d
+    # Optimizers (adamw -> weight_decay=0)
     self.bppc_optimizer_kp = torch.optim.AdamW([self.params_kp], lr=0.001, weight_decay=0, amsgrad=True) # cfg.TRAIN.LR = 0.001
     self.bppc_optimizer = torch.optim.AdamW([self.params_projection, self.params_time, self.params_sm_offset], lr=0.001, weight_decay=0, amsgrad=True) # cfg.TRAIN.LR = 0.001
   
@@ -114,14 +119,8 @@ class BPPC(nn.Module):
 
     loss = self.criterion_mse(params_kp_sk, sm_kp)
     f_loss = c_scores.unsqueeze(3) * (params_kp_sk - sm_kp)**2
-    loss += ohkm(f_loss, 17)
-    loss += 0.5 * self.criterion_mse(self.params_sm_offset, self.params_sm_offset.detach()*0)
-
-
-    # time loss --> by the num of frames, frames 개수가 많으면 딱히 time loss가 필요하지 않음, 개수가 적으면 time loss의 hm 조정이 필요함.
-    # loss += 0.1 * self.criterion_mse(self.params_time, self.params_time.detach()*0)
-    # loss += 0.5 * self.criterion_mse(self.params_time, self.params_time.detach()*0)
-    # loss += 5 * self.criterion_mse(self.params_time, self.params_time.detach()*0)
+    loss += self.lambda_ohkm * ohkm(f_loss, 17)
+    loss += self.lambda_reg * self.criterion_mse(self.params_sm_offset, self.params_sm_offset.detach()*0)
 
     return loss
 
@@ -155,15 +154,15 @@ class BPPC(nn.Module):
     params_kp_sk = params_kp_sk.reshape(b, sm_3d.shape[1], k, x)
 
     loss = 0.0  * self.criterion_mse(params_kp_sk, sm_kp)
-    loss += 0.5 * self.criterion_mse(params_kp_sk[:,1:,:,:]-params_kp_sk[:,:-1,:,:], sm_kp[:,1:,:,:]-sm_kp[:,:-1,:,:]) # velocity # Eq. 6 loss term 1
-    loss += 1 * self.criterion_mse(params_kp_sk[:,2:,:,:]-params_kp_sk[:,:-2,:,:], sm_kp[:,2:,:,:]-sm_kp[:,:-2,:,:]) # accel # Eq. 6 loss term 2
+    loss += self.lambda_vel * self.criterion_mse(params_kp_sk[:,1:,:,:]-params_kp_sk[:,:-1,:,:], sm_kp[:,1:,:,:]-sm_kp[:,:-1,:,:]) # velocity # Eq. 6 loss term 1
+    loss += self.lambda_accel * self.criterion_mse(params_kp_sk[:,2:,:,:]-params_kp_sk[:,:-2,:,:], sm_kp[:,2:,:,:]-sm_kp[:,:-2,:,:]) # accel # Eq. 6 loss term 2
 
     params_kp_sk_ori = params_kp_sk_ori.reshape(b, params_kp_sk_ori.shape[1], k, 2)
     # hrnet = hrnet.reshape(b, params_kp_sk_ori.shape[1], k, x)
     hrnet = hrnet.reshape(b, params_kp_sk_ori.shape[1], k, 2)
 
     f_loss = self.c_scores.unsqueeze(3) * (params_kp_sk_ori - hrnet) ** 2
-    loss += 0.5 * ohkm(f_loss, 17) # Eq. 6 loss term 3
+    loss += self.lambda_ohkm * ohkm(f_loss, 17) # Eq. 6 loss term 3
 
     # hrnet = hrnet.reshape(b, params_kp_sk_ori.shape[1], k, x)
     hrnet = hrnet.reshape(b, params_kp_sk_ori.shape[1], k * 2 )
