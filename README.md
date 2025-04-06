@@ -2,8 +2,6 @@
 
 ![The framework of BPPC](./assets/BPPC_framework.png)
 
-https://drive.google.com/file/d/1YeizctfSZQtzHbl8uBxJkT9PJnZxiOw9/view
-
 ## Contributions
 
 - We propose Baseball Player Pose Corrector (BPPC), an optimization technique for refining keypoints in baseball batting, leveraging prior knowledge of the 3D swing motion.
