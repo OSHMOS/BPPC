@@ -72,14 +72,14 @@ sh run_right.sh
 
 ```
 @article{OH2025,
-title = {Accurate baseball player pose refinement using motion prior guidance},
-journal = {ICT Express},
-year = {2025},
-issn = {2405-9595},
-doi = {https://doi.org/10.1016/j.icte.2025.03.008},
-url = {https://www.sciencedirect.com/science/article/pii/S2405959525000360},
-author = {Seunghyun Oh and Heewon Kim},
-keywords = {Human pose estimation, Human pose refinement, Deep learning}
+    title = {Accurate baseball player pose refinement using motion prior guidance},
+    journal = {ICT Express},
+    year = {2025},
+    issn = {2405-9595},
+    doi = {https://doi.org/10.1016/j.icte.2025.03.008},
+    url = {https://www.sciencedirect.com/science/article/pii/S2405959525000360},
+    author = {Seunghyun Oh and Heewon Kim},
+    keywords = {Human pose estimation, Human pose refinement, Deep learning}
 }
 ```
 
