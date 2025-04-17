@@ -24,19 +24,14 @@ def ohkm(loss, topk): # loss.size() = tensor(1, 77, 17)(b=1, f, k)
       )
       tmp_loss = torch.gather(sub_loss, 0, topk_idx)
       ohkm_loss += torch.sum(tmp_loss) / topk
-      # ohkm_loss /= loss.size()[0]
   return ohkm_loss
 
 grid_sample1d = GridSample1d(padding_mode=False, align_corners=True)
 
 # Load 3D standard motion data
-# sm_3d = np.load('data/sm_3D/sm_3D_golf_label.npz')['reconstruction'] # golf
 sm_3d = np.load('data/sm_3D/sm_3D_baseball_label.npz')['reconstruction'] # baseball
-# sm_3d = np.load('data/sm_3D/sm_3D_base_by_bppc_left.npz')['sm_3d'] # bppc 1
-# sm_3d = np.load('data/sm_3D/sm_3D_base_by_bppc_right.npz')['sm_3d'] # bppc 2
 sm_3d = sm_3d.astype('float32')
 sm_3d = torch.tensor(sm_3d).unsqueeze(0).cuda()
-# sm_3d = torch.tensor(sm_3d).cuda() # bppc 1, 2
 
 # Add an additional dimension for homogenous coordinates
 sm_3d = torch.cat((sm_3d, torch.ones(sm_3d.shape[0],sm_3d.shape[1],sm_3d.shape[2],1 ).cuda()), dim=3)
@@ -185,7 +180,6 @@ class BPPC(nn.Module):
     self.sm_kpts[:,start_time:end_time+1,:] = sm_kp
 
     return loss
-
 
   # bppc_optimizer로 self.params_kp optimize
   def optimize_kp(self, iters, batch=None):

@@ -9,15 +9,14 @@ from math import sqrt
 torch.cuda.empty_cache()
 
 class Visualize_BPPC():
-    def __init__(self, handed_option, bppc_kpts, sm_kpts, gt_kpts, folder_number):
+    # def __init__(self, handed_option, bppc_kpts, sm_kpts, gt_kpts, folder_number):
+    def __init__(self, handed_option, bppc_kpts, hrnet_kpts, sm_kpts, gt_kpts, folder_number):
         super().__init__()
         self.handed_option = handed_option
-        self.hrnet_kpts = np.load('data/hrnet_2D/hrnet_2D.npz')
+        
         self.bppc_kpts = bppc_kpts
+        self.hrnet_kpts = hrnet_kpts
         self.sm_kpts = sm_kpts
-        # if list(gt_kpts) == None: # gt is Not None
-        # # if gt_kpts == None:
-        #     self.gt_kpts = None
         self.gt_kpts = gt_kpts
 
         self.folder_number = folder_number
@@ -109,8 +108,8 @@ class Visualize_BPPC():
         gt_keypoint_number = 13
         keypoint_number = 17
 
-        hrnet_kpts = self.hrnet_kpts['keypoints'][0]
-        hrnet_kpts = torch.tensor(hrnet_kpts).cuda()
+        hrnet_kpts = self.hrnet_kpts
+        hrnet_kpts = self.hrnet_kpts.clone().detach().cuda()
         bppc_kpts = self.bppc_kpts
         sm_kpts = self.sm_kpts
         if self.gt_kpts is None:
@@ -141,25 +140,18 @@ class Visualize_BPPC():
         # mlb
         # images = sorted(os.listdir(image_folder))[1:]
 
-        hrnet_images = []
-        bppc_images = []
-        sm_images = []
-        gt_images = []
-
         for i in range(hrnet_kpts.shape[0]):
             try:
                 img = cv2.imread(f'data/images/{self.handed_option}_final/{self.folder_number}/{images_list[i]}')
                 # img = cv2.imread(f'data/mlb_images/{number}/{images_list[i]}')
                 # print(img)
                 # height, width, channels = img.shape
+                
                 hrnet_img = self.show2Dpose(hrnet_kpts[i], copy.deepcopy(img))
-                # print(hrnet_kpts[i])
-                # hrnet_img = self.show2Dpose(hrnet_kpts[i], copy.deepcopy(np.ones((height, width, 3), np.uint8) * 255))
                 bppc_img = self.show2Dpose(bppc_kpts[i], copy.deepcopy(img))
                 sm_img = self.show2Dpose(sm_kpts[i], copy.deepcopy(img))
                 gt_img = self.show2Dpose_gt(gt_kpts[i], copy.deepcopy(img))
 
-                # print(hrnet_img)
                 cv2.imwrite(f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/{model_name}/{i}.png', hrnet_img)
                 cv2.imwrite(f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/bppc/{i}.png', bppc_img)
                 cv2.imwrite(f'demo/output/backbone/{model_name}/{self.handed_option}/{number}/sm/{i}.png', sm_img)

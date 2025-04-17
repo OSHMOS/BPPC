@@ -39,61 +39,6 @@ def sort_key(s):
     # 이미지 파일명에서 숫자를 추출하여 정렬 기준으로 사용
     return int(re.search(r'\d+', s).group())
 
-def img2video(video_path, number, model_name):
-    output_dir=f'demo/output/backbone/{model_name}/'
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    cap = cv2.VideoCapture(video_path)
-    fps = 10
-
-    width = round(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    videoWrite = cv2.VideoWriter(f'{output_dir}{number}/output.mp4', fourcc, fps, (width * 4, height))
-
-    folders = [f'demo/output/backbone/{model_name}/{number}/{model_name}/', f'demo/output/backbone/{model_name}/{number}/apc/', f'demo/output/backbone/{model_name}/{number}/sm/', f'demo/output/backbone/{model_name}/{number}/gt/']
-
-    # mlb
-    # folders = [f'demo/sm_output/hrnet/', f'demo/sm_output/apc/', f'demo/sm_output/sm/', f'demo/sm_output/gt/']
-
-    # 각 폴더의 이미지 리스트 가져오기 & 정렬
-    image_list = [sorted(os.listdir(folder), key=sort_key) for folder in folders]
-
-    max_images = min([len(images) for images in image_list])
-    
-    labels = [f"{model_name}", "apc", "SM", "GT"]
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = 1
-    font_thickness = 2
-    color = (0, 0, 0)
-
-    for i in range(max_images):
-        frames = []
-        for j, folder in enumerate(folders):
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            img_path = os.path.join(folder, image_list[j][i])
-            img = cv2.imread(img_path)
-            
-            # 이미지 크기 검사 및 조정 (필요한 경우)
-            if img.shape[0] != height or img.shape[1] != width:
-                img = cv2.resize(img, (width, height))
-            
-            # 텍스트 추가
-            cv2.putText(img, labels[j], (10, height - 10), font, font_scale, color, font_thickness)
-
-            frames.append(img)
-        
-        # 모든 이미지를 수평으로 연결
-        combined_frame = cv2.hconcat(frames)
-        
-        # 비디오에 프레임 추가
-        videoWrite.write(combined_frame)
-
-    videoWrite.release()
-    print("Generating Output video successfully!")
-
 
 def generate_heatmap(height, width, all_keypoints, sigma=3):
     num_images, num_keypoints, _ = all_keypoints.shape

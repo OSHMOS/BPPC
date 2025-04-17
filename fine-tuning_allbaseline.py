@@ -9,7 +9,7 @@ import torch
 import argparse # for parameter
 import numpy as np
 from tabulate import tabulate
-from lib.bppc.utils_allbaseline import input_img2video, img2video, generate_heatmap
+from lib.bppc.utils_allbaseline import input_img2video, generate_heatmap
 from lib.backbone.lib.utils.evaluate import accuracy
 from lib.dataset.bppc_dataset import hrnet_to_bppc, gt_to_bppc, scores_to_13, bppc_to_13, hr_to_13
 from lib.preprocess import h36m_coco_format
@@ -173,6 +173,7 @@ if __name__ == '__main__':
             height = one_image.shape[0]
             image_shape = [width, height]
 
+            # if you want to generate 2D pose w/ ckeckpoints
             # all_kpts = []
             # all_scores = []
             # print('\nGenerating 2D pose...')
@@ -191,13 +192,9 @@ if __name__ == '__main__':
             # kpts, scores, valid_frames = h36m_coco_format(all_kpts, all_scores) # all
             # kpts, scores = hrnet_to_bppc(image_shape, kpts, scores)
             # hrnet_pred = torch.tensor(kpts).cuda().type(torch.float32)
-
-            # for save baseline kpts and scores (frozen)
-            frozen_dir = f'data/frozen/{model_name}/{folder_number}'
-            hrnet_pred = torch.from_numpy(np.load(f'{frozen_dir}/kpts.npz')['kpts']).cuda().type(torch.float32)
-            scores = np.load(f'{frozen_dir}/scores.npz')['scores']
-
-            # for save baseline kpts and scores (frozen)
+            #
+            
+            # I recommend to save baseline kpts and scores into 'data/frozen'
             # frozen_dir = f'data/frozen/{model_name}/{folder_number}'
             # if not os.path.exists(frozen_dir):
             #     os.makedirs(frozen_dir)
@@ -207,9 +204,11 @@ if __name__ == '__main__':
 
             # print(f"{folder_number} end")
             # print('---------------------')
-            # end = time.time()
 
-            # continue
+            # for save baseline kpts and scores (frozen)
+            frozen_dir = f'data/frozen/{model_name}/{folder_number}'
+            hrnet_pred = torch.from_numpy(np.load(f'{frozen_dir}/kpts.npz')['kpts']).cuda().type(torch.float32)
+            scores = np.load(f'{frozen_dir}/scores.npz')['scores']
 
             print('\nRefining 2D pose...')
             bppc = BPPC(handed_option=handed_option,
@@ -244,10 +243,8 @@ if __name__ == '__main__':
             bppc_heatmap = generate_heatmap(height, width, bppc_kpts).clone().detach().cuda()
 
             # visualize
-            # visualizer = Visualize_BPPC(handed_option, bppc.bppc_kpts, bppc.sm_kpts, gt_kpts, folder_number=folder_number)
+            # visualizer = Visualize_BPPC(handed_option, bppc.bppc_kpts, hrnet_pred, bppc.sm_kpts, gt_kpts, folder_number=folder_number)
             # visualizer.visualize(images_list, image_shape, model_name, folder_number)
-            
-            # img2video(video_path, number, model_name)
             
             # for basic results
             # head
@@ -342,6 +339,8 @@ if __name__ == '__main__':
             [model_name+' + bppc', sum_avg_u05_a/cnt, sum_avg_0506_a/cnt, sum_avg_0607_a/cnt, sum_avg_0708_a/cnt, sum_avg_0809_a/cnt, sum_avg_o09_a/cnt]
         ]
         table = tabulate(final_avg_conf, headers=['model', 'under 0.5', '0.5 - 0.6', '0.6 - 0.7', '0.7 - 0.8', '0.8 - 0.9', 'over 0.9'])
+        print('conf results')
+        print(table)
         
         os.makedirs(f'demo/output/conf_results/{model_name}/{handed_option}', exist_ok=True)
         with open(f'demo/output/conf_results/{model_name}/{handed_option}/{lambda_ohkm}_{lambda_reg}_{lambda_vel}_{lambda_accel}_results.txt', 'w') as f:
@@ -353,10 +352,12 @@ if __name__ == '__main__':
             ]
         
         table = tabulate(final_avg_body, headers=['model', 'head', 'sho', 'elb', 'wri', 'hip', 'knee', 'ank', 'avg'])
+        print('\nbasic results')
         print(table)
 
         os.makedirs(f'demo/output/basic_results/{model_name}/{handed_option}', exist_ok=True)
         with open(f'demo/output/basic_results/{model_name}/{handed_option}/{lambda_ohkm}_{lambda_reg}_{lambda_vel}_{lambda_accel}_results.txt', 'w') as f:
             f.write(table)
         
-        print('save the results complete')
+        print('---------------------')
+        print('complete to save the results') 

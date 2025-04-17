@@ -1,4 +1,7 @@
 # Accurate Baseball Player Pose Refinement Using Motion Prior Guidance
+---
+[![Paper](https://img.shields.io/badge/Paper-ScienceDirect-red?style=for-the-badge&logo=sciencedirect&logoColor=white)](https://www.sciencedirect.com/science/article/pii/S2405959525000360)
+[![Journal](https://img.shields.io/badge/Journal-ICT_Express_(SCIE)-green?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJMMiA3djEwbDEwIDUgMTAtNVY3TDEyIDJ6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==)](https://www.sciencedirect.com/journal/ict-express)
 
 ![The framework of BPPC](./assets/BPPC_framework.png)
 
@@ -23,15 +26,26 @@ Clone the repo:
 git clone https://github.com/BPPE-BaseballPlayerPoseEstimation/BPPC.git
 ```
 
-Install the bppc requirements using `conda`:
+Install the bppc requirements using `conda` and `pip`:
 ```bash
-conda env create -f bppc.yaml
+conda create -n bppc python=3.12 -y
 
-pip install yacs==0.1.8 filterpy
+# Install PyTorch
+# The following command is an example and should be modified according to your CUDA version and system environment
+pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu118
 
 cd grid_sample1d/
 python setup.py install
 cd ..
+
+pip install opencv-python
+pip install tabulate
+pip install scipy
+pip install tqdm
+pip install yacs
+pip install numba
+pip install scikit-image
+pip install filterpy
 ```
 
 Prepare the [checkpoints](https://drive.google.com/drive/folders/1vXUerOenwrbp0clkALKPehKkvq5HWvQK?usp=drive_link):
@@ -39,7 +53,7 @@ Prepare the [checkpoints](https://drive.google.com/drive/folders/1vXUerOenwrbp0c
 ```
 ${POSE_ROOT}
     `-- lib
-        `-- checkpoints
+        `-- checkpoint
             |-- darkpose
             |   |-- w32_384×288.pth
             |   `-- w48_384×288.pth
@@ -58,12 +72,14 @@ ${POSE_ROOT}
 
 Test the left-handed batter:
 ```bash
-sh run_left.sh
-```
+bash run_bppc.sh
+(python fine-tuning_one_motion.py --handed left)
 
-Test the right-handed batter:
-```bash
-sh run_right.sh
+# for the left-handed batter
+--handed left
+
+# for the right-handed batter
+--handed right
 ```
 
 ## Citation
