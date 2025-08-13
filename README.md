@@ -1,7 +1,8 @@
 # Accurate Baseball Player Pose Refinement Using Motion Prior Guidance
 ---
-[![Paper](https://img.shields.io/badge/Paper-ScienceDirect-red?style=for-the-badge&logo=sciencedirect&logoColor=white)](https://www.sciencedirect.com/science/article/pii/S2405959525000360)
-[![Journal](https://img.shields.io/badge/Journal-ICT_Express_(SCIE)-green?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJMMiA3djEwbDEwIDUgMTAtNVY3TDEyIDJ6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==)](https://www.sciencedirect.com/journal/ict-express)
+[![Paper](https://img.shields.io/badge/Paper-ScienceDirect-red?style=for-the-badge)](https://www.sciencedirect.com/science/article/pii/S2405959525000360)
+[![Journal](https://img.shields.io/badge/Journal-Homepage-blue?style=for-the-badge)](https://www.sciencedirect.com/journal/ict-express)
+[![JCR](https://img.shields.io/badge/JCR-ICT_Express-green?style=for-the-badge)](https://jcr.clarivate.com/jcr-jp/journal-profile?journal=ICT%20EXPRESS&year=2024&fromPage=%2Fjcr%2Fhome)
 
 ![The framework of BPPC](./assets/BPPC_framework.png)
 
