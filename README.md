@@ -24,7 +24,7 @@ videos, regardless of the differences between the standard motion and test swing
 Clone the repo:
 
 ```bash
-git clone https://github.com/BPPE-BaseballPlayerPoseEstimation/BPPC.git
+git clone https://github.com/OSHMOS/BPPC.git
 ```
 
 Install the bppc requirements using `conda` and `pip`:
