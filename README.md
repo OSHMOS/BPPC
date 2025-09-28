@@ -1,4 +1,4 @@
-# Accurate Baseball Player Pose Refinement Using Motion Prior Guidance
+# Accurate baseball player pose refinement using motion prior guidance
 ---
 [![Paper](https://img.shields.io/badge/Paper-ScienceDirect-red?style=for-the-badge)](https://www.sciencedirect.com/science/article/pii/S2405959525000360)
 [![Journal](https://img.shields.io/badge/Journal-Homepage-blue?style=for-the-badge)](https://www.sciencedirect.com/journal/ict-express)
