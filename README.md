@@ -17,6 +17,36 @@ videos, regardless of the differences between the standard motion and test swing
 
 - BPPC improves the quantitative and qualitative performance of state-of-the-art HPE models on benchmark datasets.
 
+## Project Structure
+
+```
+BPPC/
+├── core/
+│   └── model.py                  # BPPC model (optimization module)
+├── runners/
+│   ├── opt/opt_bppc.py           # Step 1: Run BPPC optimization, save results
+│   └── eval/eval_bppc.py         # Step 2: Evaluate & visualize saved results
+├── scripts/
+│   ├── run_opt_bppc.sh           # Run optimization for all test cases
+│   ├── run_eval_bppc.sh          # Run evaluation for all test cases
+│   ├── run_one_bppc.sh           # Run a single test case (opt + eval)
+│   └── run_pipeline.sh           # Full pipeline (opt → eval → Excel export)
+├── utils/
+│   ├── accuracy_bppc.py          # Accuracy calculation utilities
+│   └── visualize_bppc.py         # Visualization utilities
+├── lib/                          # Backbone models and dataset utilities
+├── grid_sample1d/                # Custom 1D grid sampling CUDA extension
+├── data/
+│   ├── images/                   # Input images ({left,right}_final/)
+│   ├── frozen/                   # Pre-extracted 2D keypoints & scores
+│   ├── gt_2D/                    # Ground truth 2D keypoints
+│   └── sm_3D/                    # 3D standard motion data
+├── demo/
+│   ├── bppc/                     # BPPC optimization results (.npz)
+│   └── output/                   # Evaluation results & visualizations
+└── aggregate_results.py          # Collect all results into Excel
+```
+
 ## Getting Started
 
 ### Environment Requirement
@@ -39,14 +69,7 @@ cd grid_sample1d/
 python setup.py install
 cd ..
 
-pip install opencv-python
-pip install tabulate
-pip install scipy
-pip install tqdm
-pip install yacs
-pip install numba
-pip install scikit-image
-pip install filterpy
+pip install opencv-python tabulate scipy tqdm yacs numba scikit-image filterpy
 ```
 
 Prepare the [checkpoints](https://drive.google.com/drive/folders/1vXUerOenwrbp0clkALKPehKkvq5HWvQK?usp=drive_link):
@@ -69,18 +92,48 @@ ${POSE_ROOT}
 ```
 
 
-### Test
+## Test
 
-Test the left-handed batter:
+The pipeline is split into two stages: **Optimization** and **Evaluation**.  
+Pre-extracted 2D keypoints from baseline models are stored in `data/frozen/`, so backbone inference does not need to be re-run.
+
+### Run All Test Cases (Full Pipeline)
+
 ```bash
-bash run_bppc.sh
-(python fine-tuning_one_motion.py --handed left)
+conda activate bppc
 
-# for the left-handed batter
---handed left
+# Step 1: Optimization (saves results to demo/bppc/)
+bash scripts/run_opt_bppc.sh
 
-# for the right-handed batter
---handed right
+# Step 2: Evaluation + Visualization (reads from demo/bppc/, saves to demo/output/)
+bash scripts/run_eval_bppc.sh
+
+# Or run both steps + Excel export at once
+bash scripts/run_pipeline.sh
+```
+
+### Run a Single Test Case
+
+Useful for quick debugging or per-sample inspection:
+
+```bash
+# bash scripts/run_one_bppc.sh <handed> <folder_number> [model_name]
+
+# Example: left-handed batter, folder 0170, ResNet-152
+bash scripts/run_one_bppc.sh left 0170 res152
+
+# Example: all models for one folder
+bash scripts/run_one_bppc.sh left 0170
+
+# Handed options: left / right
+# Model options:  res50, res101, res152, hw32, hw48, darkw32, darkw48, all
+```
+
+### Collect Results into Excel
+
+```bash
+python aggregate_results.py
+# Output: eval_bppc_results.xlsx (Body Results + Conf Results sheets)
 ```
 
 ## Citation
