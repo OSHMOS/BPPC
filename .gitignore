@@ -5,7 +5,9 @@ results
 demo
 .vscode
 *.log
-__pycache__
+__pycache__/
 results.tar
 results.tar.gz
-
+data/
+grid_sample1d/build/
+*.so

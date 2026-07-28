@@ -9,8 +9,8 @@ from tabulate import tabulate
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from lib.bppc.utils_allbaseline import generate_heatmap
 from lib.dataset.bppc_dataset import scores_to_13
-from utils.accuracy_bppc import cal_conf_acc, cal_acc
-from utils.visualize_bppc import Visualize_BPPC
+from utils_bppc.accuracy_bppc import cal_conf_acc, cal_acc
+from utils_bppc.visualize_bppc import Visualize_BPPC
 
 torch.cuda.empty_cache()
 
@@ -106,9 +106,9 @@ if __name__ == '__main__':
 
             print(f"{model_name} starting evaluation for folder {folder_number}")
 
-            gt_heatmap = generate_heatmap(height, width, gt_kpts).clone().detach().cuda()
-            hrnet_heatmap = generate_heatmap(height, width, base_kpts).clone().detach().cuda()
-            bppc_heatmap = generate_heatmap(height, width, bppc_kpts).clone().detach().cuda()
+            gt_heatmap = generate_heatmap(height, width, gt_kpts).clone().detach().cpu()
+            hrnet_heatmap = generate_heatmap(height, width, base_kpts).clone().detach().cpu()
+            bppc_heatmap = generate_heatmap(height, width, bppc_kpts).clone().detach().cpu()
 
             # head
             body_accuracy(hrnet_heatmap[:,0:1,:,:], bppc_heatmap[:,0:1,:,:], gt_heatmap[:,0:1,:,:], "head")
@@ -136,7 +136,7 @@ if __name__ == '__main__':
                                       sm_kpts_placeholder.unsqueeze(0), 
                                       torch.tensor(gt_kpts).unsqueeze(0), 
                                       folder_number)
-            visualizer.visualize(images_list, [width, height], model_name, folder_number)
+            # visualizer.visualize(images_list, [width, height], model_name, folder_number)
 
             avg_values_body = {key: (sum(val) / len(val) if len(val) != 0 else 0) for key, val in accs_body.items()}
             sum_avg_h_head += avg_values_body["head_h"]; sum_avg_a_head += avg_values_body["head_a"]

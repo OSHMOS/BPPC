@@ -29,7 +29,7 @@ def ohkm(loss, topk): # loss.size() = tensor(1, 77, 17)(b=1, f, k)
 grid_sample1d = GridSample1d(padding_mode=False, align_corners=True)
 
 # Load 3D standard motion data
-sm_3d = np.load('data/sm_3D/sm_3D_baseball_label.npz')['reconstruction'] # baseball
+sm_3d = np.load('/home/i2slab0/oshmos/PR/bppc/data/sm_3D/sm_3D_baseball_label.npz')['reconstruction'] # baseball
 sm_3d = sm_3d.astype('float32')
 sm_3d = torch.tensor(sm_3d).unsqueeze(0).cuda()
 

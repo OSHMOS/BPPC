@@ -4,6 +4,8 @@ from torch import nn
 from torch.autograd import Function
 import torch
 from torch.utils.cpp_extension import load
+import sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 # build by python setup.py install
 import grid_sample1d_cuda as grid_sample1d

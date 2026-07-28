@@ -86,12 +86,12 @@ if __name__ == '__main__':
             gt_kpts = gt_kpts.cpu().numpy()*image_shape[:2][::-1]
 
             kpts = hrnet_pred.clone().detach().cuda().reshape(-1, 17, 2)
-            kpts = hr_to_13(kpts)
-            kpts = kpts*image_shape[:2][::-1]
+            kpts = hr_to_13(kpts)  # returns numpy
+            kpts = kpts * image_shape[:2][::-1]
 
             bppc_kpts = bppc.bppc_kpts.reshape(-1, 17, 2)
-            bppc_kpts = bppc_to_13(bppc_kpts)
-            bppc_kpts = bppc_kpts*image_shape[:2][::-1]
+            bppc_kpts = bppc_to_13(bppc_kpts).numpy()  # returns tensor -> numpy
+            bppc_kpts = bppc_kpts * image_shape[:2][::-1]
 
             output_dir = f'demo/bppc/{handed_option}/{model_name}'
             os.makedirs(output_dir, exist_ok=True)

@@ -28,11 +28,14 @@ class Visualize_BPPC():
     
     
     def show2Dpose(self, kps, img):
-        connections = [[0, 1], [1, 2], [2, 3], [0, 4], [4, 5],
-                    [5, 6], [0, 7], [7, 8], [8, 9], [9, 10],
-                    [8, 11], [11, 12], [12, 13], [8, 14], [14, 15], [15, 16]]
-
-        LR = np.array([1, 1, 1, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 1, 1, 1], dtype=int) # real left : 0, real right : 1, center : 2
+        if len(kps) == 13:
+            connections = [[1, 3], [3, 5], [2, 4], [4, 6], [7, 9], [9, 11], [8, 10], [10, 12]]
+            LR = np.array([2, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1], dtype=int)
+        else:
+            connections = [[0, 1], [1, 2], [2, 3], [0, 4], [4, 5],
+                        [5, 6], [0, 7], [7, 8], [8, 9], [9, 10],
+                        [8, 11], [11, 12], [12, 13], [8, 14], [14, 15], [15, 16]]
+            LR = np.array([1, 1, 1, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 1, 1, 1], dtype=int)
 
         # color : (blue, green, red)
         lcolor = (255, 0, 0) # blue
@@ -119,10 +122,10 @@ class Visualize_BPPC():
             gt_kpts = self.gt_kpts
             gt_kpts = torch.tensor(gt_kpts).cuda()
 
-        hrnet_kpts = hrnet_kpts.reshape(-1, keypoint_number, 2)
-        bppc_kpts = bppc_kpts.reshape(-1, keypoint_number, 2)
-        sm_kpts = sm_kpts.reshape(-1, keypoint_number, 2)
-        gt_kpts = gt_kpts.reshape(-1, gt_keypoint_number, 2)
+        hrnet_kpts = hrnet_kpts.reshape(-1, hrnet_kpts.shape[-2], 2)
+        bppc_kpts = bppc_kpts.reshape(-1, bppc_kpts.shape[-2], 2)
+        sm_kpts = sm_kpts.reshape(-1, sm_kpts.shape[-2], 2)
+        gt_kpts = gt_kpts.reshape(-1, gt_kpts.shape[-2], 2)
 
         # print(hrnet_kpts.shape)
         # print(gt_kpts.shape)

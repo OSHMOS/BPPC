@@ -279,7 +279,7 @@ torch::Tensor grid_sample1d_cuda_forward(
   const int N = C*L_out*batch_size;
   const int blocks = (N + threads-1)/ threads;
 
-  AT_DISPATCH_FLOATING_TYPES(input.type(), "lltm_forward_cuda", ([&] {
+  AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "lltm_forward_cuda", ([&] {
     grid_sample1d_cuda_forward_kernel<scalar_t><<<blocks, threads>>>(
         input.data<scalar_t>(),
         grid.data<scalar_t>(),
@@ -317,7 +317,7 @@ std::vector<torch::Tensor> grid_sample1d_cuda_backward(
     const int N = L_out*batch_size;
     const int blocks = (N + threads-1)/ threads;
 
-    AT_DISPATCH_FLOATING_TYPES(input.type(), "grid_sample1d_backward_cuda", ([&] {
+    AT_DISPATCH_FLOATING_TYPES(input.scalar_type(), "grid_sample1d_backward_cuda", ([&] {
     grid_sample1d_cuda_backward_kernel<scalar_t><<<blocks, threads>>>(
         grad_output.data<scalar_t>(),
         input.data<scalar_t>(),
